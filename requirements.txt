@@ -1,6 +1,4 @@
 gradio
 groq
-vieneu
 pillow
-rembg
 requests
