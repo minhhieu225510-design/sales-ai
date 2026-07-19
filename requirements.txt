@@ -1,4 +1,3 @@
 gradio
 groq
-pillow
 requests
