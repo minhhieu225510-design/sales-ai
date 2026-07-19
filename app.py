@@ -1,35 +1,33 @@
-# --- DÒNG QUAN TRỌNG NHẤT: PHẢI ĐẶT TRƯỚC TẤT CẢ CÁC LỆNH IMPORT ---
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-
 import gradio as gr
 from groq import Groq
-# Import các thư viện khác sau khi đã chặn GPU
 from PIL import Image
 import requests
 
 # Khởi tạo Client Groq
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
-# Hàm xử lý Content bằng Groq API
+# Hàm xử lý Content
 def generate_content(prod_name, prod_info, mode_genz):
     trend_prompt = "Dùng từ lóng trend (đỉnh nóc, kịch trần, over hợp...)" if mode_genz else ""
     prompt = f"Viết content bán hàng cho sản phẩm: {prod_name}. Thông tin: {prod_info}. {trend_prompt}. Trả về cấu trúc: ---FACEBOOK---, ---SHOPEE_LAZADA---, ---TIKTOK_SCRIPT---, ---SEEDING---"
     
-    completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": prompt}],
-        model="llama-3.3-70b-versatile",
-    )
-    raw_text = completion.choices[0].message.content
-    
-    return raw_text.split("---FACEBOOK---")[-1].split("---SHOPEE_LAZADA---")[0].strip(), \
-           raw_text.split("---SHOPEE_LAZADA---")[-1].split("---TIKTOK_SCRIPT---")[0].strip(), \
-           raw_text.split("---TIKTOK_SCRIPT---")[-1].split("---SEEDING---")[0].strip(), \
-           raw_text.split("---SEEDING---")[-1].strip()
+    try:
+        completion = client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}],
+            model="llama-3.3-70b-versatile",
+        )
+        raw_text = completion.choices[0].message.content
+        return raw_text.split("---FACEBOOK---")[-1].split("---SHOPEE_LAZADA---")[0].strip(), \
+               raw_text.split("---SHOPEE_LAZADA---")[-1].split("---TIKTOK_SCRIPT---")[0].strip(), \
+               raw_text.split("---TIKTOK_SCRIPT---")[-1].split("---SEEDING---")[0].strip(), \
+               raw_text.split("---SEEDING---")[-1].strip()
+    except Exception as e:
+        return f"Lỗi: {str(e)}", "", "", ""
 
 # Giao diện
 with gr.Blocks(title="AI Sales Studio") as demo:
-    gr.Markdown("# 🚀 AI Sales Studio (Cloud Ready)")
+    gr.Markdown("# 🚀 AI Sales Studio (Cloud Ready - Bản ổn định)")
     with gr.Row():
         with gr.Column():
             prod_name = gr.Textbox(label="Tên sản phẩm")
